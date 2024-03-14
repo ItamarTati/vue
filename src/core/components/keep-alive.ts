@@ -5,18 +5,39 @@ import type { VNodeComponentOptions } from 'types/vnode'
 import type { Component } from 'types/component'
 import { getComponentName } from '../vdom/create-component'
 
+/**
+ * @typedef {Object} CacheEntry - Entry in the component cache.
+ * @property {string} [name] - Name of the component.
+ * @property {string} [tag] - Tag of the component.
+ * @property {Component} [componentInstance] - Instance of the component.
+ */
 type CacheEntry = {
   name?: string
   tag?: string
   componentInstance?: Component
 }
 
+
+/**
+ * @typedef {Record<string, CacheEntry | null>} CacheEntryMap - Map of component cache entries.
+ */
 type CacheEntryMap = Record<string, CacheEntry | null>
 
+/**
+ * Get the name of a component from its options.
+ * @param {VNodeComponentOptions} [opts] - Component options.
+ * @returns {string | null} - Name of the component or null.
+ */
 function _getComponentName(opts?: VNodeComponentOptions): string | null {
   return opts && (getComponentName(opts.Ctor.options as any) || opts.tag)
 }
 
+/**
+ * Check if a name matches a pattern.
+ * @param {string | RegExp | Array<string>} pattern - Pattern to match against.
+ * @param {string} name - Name to match.
+ * @returns {boolean} - Whether the name matches the pattern.
+ */
 function matches(
   pattern: string | RegExp | Array<string>,
   name: string
@@ -32,6 +53,15 @@ function matches(
   return false
 }
 
+/**
+ * Prune the cache entries based on a filter function.
+ * @param {Object} keepAliveInstance - Keep alive instance.
+ * @param {CacheEntryMap} keepAliveInstance.cache - Component cache.
+ * @param {Array<string>} keepAliveInstance.keys - Keys of the cache entries.
+ * @param {VNode} keepAliveInstance._vnode - Current vnode.
+ * @param {VNode} keepAliveInstance.$vnode - Parent vnode.
+ * @param {Function} filter - Filter function.
+ */
 function pruneCache(
   keepAliveInstance: {
     cache: CacheEntryMap
@@ -54,6 +84,13 @@ function pruneCache(
   $vnode.componentOptions!.children = undefined
 }
 
+/**
+ * Prune a cache entry.
+ * @param {CacheEntryMap} cache - Component cache.
+ * @param {string} key - Key of the cache entry.
+ * @param {Array<string>} keys - Keys of the cache entries.
+ * @param {VNode} [current] - Current vnode.
+ */
 function pruneCacheEntry(
   cache: CacheEntryMap,
   key: string,
